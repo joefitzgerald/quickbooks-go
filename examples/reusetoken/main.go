@@ -1,14 +1,13 @@
-package examples
+package main
 
 import (
 	"fmt"
-	"testing"
+	"log"
 
-	"github.com/rwestlund/quickbooks-go"
-	"github.com/stretchr/testify/require"
+	"github.com/joefitzgerald/quickbooks-go/v2"
 )
 
-func TestReuseToken(t *testing.T) {
+func main() {
 	clientId := "<your-client-id>"
 	clientSecret := "<your-client-secret>"
 	realmId := "<realm-id>"
@@ -19,10 +18,14 @@ func TestReuseToken(t *testing.T) {
 	}
 
 	qbClient, err := quickbooks.NewClient(clientId, clientSecret, realmId, false, "", &token)
-	require.NoError(t, err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Make a request!
 	info, err := qbClient.FindCompanyInfo()
-	require.NoError(t, err)
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Println(info)
 }

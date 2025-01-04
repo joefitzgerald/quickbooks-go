@@ -1,0 +1,6 @@
+github.com/joefitzgerald/quickbooks-go/v2 v2.0.1 h1:+RmY4RLr9g4F9QPOoDvfoiar/Xcu4gOx1vJhcgNOFBU=
+github.com/joefitzgerald/quickbooks-go/v2 v2.0.1/go.mod h1:U+zPzNMe74txE8eqRZvFsYKevLk5YXg1YLADZWOZK7c=
+golang.org/x/oauth2 v0.25.0 h1:CY4y7XT9v0cRI9oupztF8AgiIu99L/ksR/Xp/6jrZ70=
+golang.org/x/oauth2 v0.25.0/go.mod h1:XYTD2NtWslqkgxebSiOHnXEap4TF09sJSc7H1sXbhtI=
+gopkg.in/guregu/null.v4 v4.0.0 h1:1Wm3S1WEA2I26Kq+6vcW+w0gcDo44YKYD7YIEJNHDjg=
+gopkg.in/guregu/null.v4 v4.0.0/go.mod h1:YoQhUrADuG3i9WqesrCmpNRwm1ypAgSHYqoOcTu/JrI=

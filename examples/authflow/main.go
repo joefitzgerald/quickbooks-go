@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/joefitzgerald/quickbooks-go"
+	"github.com/joefitzgerald/quickbooks-go/v2"
 )
 
 func main() {

@@ -1,8 +1,8 @@
 # quickbooks-go
 
-![Build](https://github.com/rwestlund/quickbooks-go/workflows/Build/badge.svg)
-[![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](http://godoc.org/github.com/rwestlund/quickbooks-go)
-[![Go Report Card](https://goreportcard.com/badge/github.com/rwestlund/quickbooks-go)](https://goreportcard.com/report/github.com/rwestlund/quickbooks-go)
+![Build](https://github.com/joefitzgerald/quickbooks-go/workflows/Build/badge.svg)
+[![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](http://godoc.org/github.com/joefitzgerald/quickbooks-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/joefitzgerald/quickbooks-go)](https://goreportcard.com/report/github.com/joefitzgerald/quickbooks-go)
 
 quickbooks-go is a Go library that provides access to Intuit's QuickBooks
 Online API.

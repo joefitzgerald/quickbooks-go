@@ -59,6 +59,12 @@ func Query[T any](c *Client, query string) ([]T, error) {
 //
 //	customers, err := quickbooks.QueryAll[Customer](client, "SELECT * FROM Customer", 100)
 func QueryAll[T any](c *Client, query string, pageSize int) ([]T, error) {
+	return QueryAllWithParams[T](c, query, pageSize, nil)
+}
+
+// QueryAllWithParams is like QueryAll but allows passing extra query parameters
+// (e.g., "include"="enhancedAllCustomFields", "minorversion"="75").
+func QueryAllWithParams[T any](c *Client, query string, pageSize int, extraParams map[string]string) ([]T, error) {
 	if pageSize <= 0 || pageSize > 1000 {
 		pageSize = 1000 // QuickBooks API maximum
 	}
@@ -68,7 +74,7 @@ func QueryAll[T any](c *Client, query string, pageSize int) ([]T, error) {
 
 	for {
 		// Fetch a page of results
-		page, err := QueryPaged[T](c, query, startPos, pageSize)
+		page, err := QueryPagedWithParams[T](c, query, startPos, pageSize, extraParams)
 		if err != nil {
 			return allResults, err
 		}
@@ -86,4 +92,38 @@ func QueryAll[T any](c *Client, query string, pageSize int) ([]T, error) {
 	}
 
 	return allResults, nil
+}
+
+// QueryPagedWithParams is like QueryPaged but allows passing extra query parameters.
+func QueryPagedWithParams[T any](c *Client, query string, startpos int, pagesize int, extraParams map[string]string) ([]T, error) {
+	selectStatement := fmt.Sprintf("%s STARTPOSITION %d MAXRESULTS %d", query, startpos, pagesize)
+	return QueryWithParams[T](c, selectStatement, extraParams)
+}
+
+// QueryWithParams is like Query but allows passing extra query parameters.
+func QueryWithParams[T any](c *Client, query string, extraParams map[string]string) ([]T, error) {
+	var resp struct {
+		QueryResponse map[string]json.RawMessage
+	}
+
+	if err := c.queryWithParams(query, &resp, extraParams); err != nil {
+		return nil, err
+	}
+
+	for key, value := range resp.QueryResponse {
+		switch key {
+		case "startPosition", "maxResults", "totalCount": // skip these...
+		default:
+			var data []T
+			decoder := json.NewDecoder(bytes.NewReader(value))
+			decoder.UseNumber()
+			err := decoder.Decode(&data)
+			if err != nil {
+				return nil, err
+			}
+			return data, nil
+		}
+	}
+
+	return []T{}, nil
 }

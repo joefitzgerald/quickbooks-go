@@ -35,7 +35,7 @@ type Client struct {
 // NewClient initializes a new QuickBooks client for interacting with their Online API
 func NewClient(clientId string, clientSecret string, realmId string, isProduction bool, minorVersion string, token *BearerToken) (c *Client, err error) {
 	if minorVersion == "" {
-		minorVersion = "65"
+		minorVersion = "75"
 	}
 
 	client := Client{
@@ -177,4 +177,13 @@ func (c *Client) post(endpoint string, payloadData interface{}, responseObject i
 // query makes the specified QBO `query` and unmarshals the result into `responseObject`
 func (c *Client) query(query string, responseObject interface{}) error {
 	return c.get("query", responseObject, map[string]string{"query": query})
+}
+
+// queryWithParams makes the specified QBO query with additional query parameters.
+func (c *Client) queryWithParams(query string, responseObject interface{}, extraParams map[string]string) error {
+	params := map[string]string{"query": query}
+	for k, v := range extraParams {
+		params[k] = v
+	}
+	return c.get("query", responseObject, params)
 }

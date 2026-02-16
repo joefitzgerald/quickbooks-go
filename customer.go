@@ -18,6 +18,7 @@ type Customer struct {
 	Id                 string          `json:",omitempty"`
 	SyncToken          string          `json:",omitempty"`
 	MetaData           MetaData        `json:",omitempty"`
+	CustomField        []CustomField   `json:",omitempty"`
 	Title              string          `json:",omitempty"`
 	GivenName          string          `json:",omitempty"`
 	MiddleName         string          `json:",omitempty"`

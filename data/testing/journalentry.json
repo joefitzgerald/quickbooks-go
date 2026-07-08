@@ -1,0 +1,53 @@
+{
+	"JournalEntry": {
+		"SyncToken": "0",
+		"domain": "QBO",
+		"TxnDate": "2026-01-31",
+		"DocNumber": "BA2026-01",
+		"PrivateNote": "Bonus accrual - January 2026",
+		"Adjustment": true,
+		"sparse": false,
+		"Line": [
+			{
+				"Id": "0",
+				"Description": "Bonus accrual - January 2026",
+				"Amount": 134212.58,
+				"DetailType": "JournalEntryLineDetail",
+				"JournalEntryLineDetail": {
+					"PostingType": "Debit",
+					"AccountRef": {
+						"name": "6560 Bonus Expense",
+						"value": "92"
+					},
+					"ClassRef": {
+						"name": "Accrual Adjustment",
+						"value": "500000000000123"
+					}
+				}
+			},
+			{
+				"Id": "1",
+				"Description": "Bonus accrual - January 2026",
+				"Amount": 134212.58,
+				"DetailType": "JournalEntryLineDetail",
+				"JournalEntryLineDetail": {
+					"PostingType": "Credit",
+					"AccountRef": {
+						"name": "2510 Payroll Liabilities:Accrued Bonus Payable",
+						"value": "93"
+					},
+					"ClassRef": {
+						"name": "Accrual Adjustment",
+						"value": "500000000000123"
+					}
+				}
+			}
+		],
+		"Id": "147",
+		"MetaData": {
+			"CreateTime": "2026-02-01T09:29:05-08:00",
+			"LastUpdatedTime": "2026-02-01T09:29:05-08:00"
+		}
+	},
+	"Time": "2026-02-01T09:29:05.123-08:00"
+}

@@ -133,6 +133,49 @@ func (c *Client) FindJournalEntries() ([]JournalEntry, error) {
 	return entries, nil
 }
 
+// FindJournalEntryByDocNumber returns the journal entry with the given
+// DocNumber, or nil if none exists.
+func (c *Client) FindJournalEntryByDocNumber(docNumber string) (*JournalEntry, error) {
+	entries, err := c.QueryJournalEntries("SELECT * FROM JournalEntry WHERE DocNumber = '" + EscapeSQLString(docNumber) + "'")
+	if err != nil {
+		return nil, err
+	}
+	if len(entries) == 0 {
+		return nil, nil
+	}
+	return &entries[0], nil
+}
+
+// QueryJournalEntriesByDocNumberPrefix returns all journal entries whose
+// DocNumber begins with the given prefix.
+func (c *Client) QueryJournalEntriesByDocNumberPrefix(prefix string) ([]JournalEntry, error) {
+	return c.QueryJournalEntries("SELECT * FROM JournalEntry WHERE DocNumber LIKE '" + EscapeSQLString(prefix) + "%'")
+}
+
+// UpsertJournalEntryByDocNumber creates the entry, or updates the existing entry
+// that shares its DocNumber, making posting idempotent by DocNumber. It returns
+// the resulting entry and whether it was created (true) or updated (false).
+// entry.DocNumber must be set.
+func (c *Client) UpsertJournalEntryByDocNumber(entry *JournalEntry) (*JournalEntry, bool, error) {
+	if entry.DocNumber == "" {
+		return nil, false, errors.New("missing doc number")
+	}
+
+	existing, err := c.FindJournalEntryByDocNumber(entry.DocNumber)
+	if err != nil {
+		return nil, false, err
+	}
+
+	if existing == nil {
+		created, err := c.CreateJournalEntry(entry)
+		return created, true, err
+	}
+
+	entry.Id = existing.Id
+	updated, err := c.UpdateJournalEntry(entry)
+	return updated, false, err
+}
+
 // UpdateJournalEntry performs a sparse update of an existing journal entry.
 // It fetches the current SyncToken so callers only need to supply Id plus the
 // fields they wish to change.

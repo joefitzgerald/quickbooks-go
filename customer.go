@@ -148,6 +148,33 @@ func (c *Client) FindCustomerById(id string) (*Customer, error) {
 	return &r.Customer, nil
 }
 
+// FetchCustomerRaw returns the raw JSON response for a customer by ID.
+func (c *Client) FetchCustomerRaw(id string) (string, error) {
+	var raw json.RawMessage
+	if err := c.get("customer/"+id, &raw, map[string]string{
+		"include": "enhancedAllCustomFields",
+	}); err != nil {
+		return "", err
+	}
+	return string(raw), nil
+}
+
+// FindCustomerByIdWithCustomFields returns a customer with enhanced custom fields.
+func (c *Client) FindCustomerByIdWithCustomFields(id string) (*Customer, error) {
+	var r struct {
+		Customer Customer
+		Time     Date
+	}
+
+	if err := c.get("customer/"+id, &r, map[string]string{
+		"include": "enhancedAllCustomFields",
+	}); err != nil {
+		return nil, err
+	}
+
+	return &r.Customer, nil
+}
+
 // FindCustomerByName gets a customer with a given name.
 func (c *Client) FindCustomerByName(name string) (*Customer, error) {
 	var resp struct {
@@ -182,10 +209,6 @@ func (c *Client) QueryCustomers(query string) ([]Customer, error) {
 
 	if err := c.query(query, &resp); err != nil {
 		return nil, err
-	}
-
-	if resp.QueryResponse.Customers == nil {
-		return nil, errors.New("could not find any customers")
 	}
 
 	return resp.QueryResponse.Customers, nil

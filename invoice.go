@@ -221,10 +221,6 @@ func (c *Client) QueryInvoices(query string) ([]Invoice, error) {
 		return nil, err
 	}
 
-	if resp.QueryResponse.Invoices == nil {
-		return nil, errors.New("could not find any invoices")
-	}
-
 	return resp.QueryResponse.Invoices, nil
 }
 

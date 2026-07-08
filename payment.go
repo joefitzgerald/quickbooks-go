@@ -113,10 +113,6 @@ func (c *Client) QueryPayments(query string) ([]Payment, error) {
 		return nil, err
 	}
 
-	if resp.QueryResponse.Payments == nil {
-		return nil, errors.New("could not find any payments")
-	}
-
 	return resp.QueryResponse.Payments, nil
 }
 

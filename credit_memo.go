@@ -118,10 +118,6 @@ func (c *Client) QueryCreditMemos(query string) ([]CreditMemo, error) {
 		return nil, err
 	}
 
-	if resp.QueryResponse.CreditMemos == nil {
-		return nil, errors.New("could not find any credit memos")
-	}
-
 	return resp.QueryResponse.CreditMemos, nil
 }
 

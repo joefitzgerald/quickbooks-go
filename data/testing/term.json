@@ -1,0 +1,19 @@
+{
+  "Term": {
+    "SyncToken": "0",
+    "domain": "QBO",
+    "Name": "Net 30",
+    "DiscountPercent": 0,
+    "DiscountDays": 0,
+    "Type": "STANDARD",
+    "sparse": false,
+    "Active": true,
+    "DueDays": 30,
+    "Id": "3",
+    "MetaData": {
+      "CreateTime": "2014-09-11T14:48:43-07:00",
+      "LastUpdatedTime": "2014-09-11T14:48:43-07:00"
+    }
+  },
+  "time": "2015-07-28T13:00:41.187-07:00"
+}

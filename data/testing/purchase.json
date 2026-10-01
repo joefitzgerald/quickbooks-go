@@ -1,0 +1,33 @@
+{
+  "Purchase": {
+    "SyncToken": "0",
+    "domain": "QBO",
+    "PurchaseEx": {"any": []},
+    "TxnDate": "2026-09-14",
+    "TotalAmt": 412.57,
+    "PaymentType": "CreditCard",
+    "sparse": false,
+    "Line": [
+      {
+        "Description": "Hotel, PCTE Bridge onsite",
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "Amount": 412.57,
+        "Id": "1",
+        "AccountBasedExpenseLineDetail": {
+          "TaxCodeRef": {"value": "NON"},
+          "AccountRef": {"name": "5400 Billable Expenses", "value": "76"},
+          "BillableStatus": "Billable",
+          "CustomerRef": {"name": "Carahsoft:[PCTE-1] PCTE Bridge (S00000081037)", "value": "158"}
+        }
+      }
+    ],
+    "AccountRef": {"name": "Ramp Card", "value": "41"},
+    "EntityRef": {"name": "Marriott", "value": "56", "type": "Vendor"},
+    "Id": "252",
+    "MetaData": {
+      "CreateTime": "2026-09-15T08:12:44-07:00",
+      "LastUpdatedTime": "2026-09-15T08:12:44-07:00"
+    }
+  },
+  "time": "2026-09-15T08:12:44.102-07:00"
+}

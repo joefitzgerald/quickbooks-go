@@ -1,0 +1,52 @@
+{
+  "Preferences": {
+    "AccountingInfoPrefs": {
+      "FirstMonthOfFiscalYear": "January",
+      "UseAccountNumbers": true,
+      "TaxYearMonth": "January",
+      "ClassTrackingPerTxn": false,
+      "TrackDepartments": false,
+      "TaxForm": "6",
+      "CustomerTerminology": "Clients",
+      "BookCloseDate": "2025-12-31",
+      "DepartmentTerminology": "Location",
+      "ClassTrackingPerTxnLine": true
+    },
+    "SalesFormsPrefs": {
+      "ETransactionPaymentEnabled": false,
+      "CustomTxnNumbers": true,
+      "AllowShipping": false,
+      "AllowServiceDate": true,
+      "ETransactionEnabledStatus": "NotApplicable",
+      "DefaultCustomerMessage": "Thank you for your business and have a great day!",
+      "EmailCopyToCompany": false,
+      "AllowEstimates": true,
+      "DefaultTerms": {"value": "3"},
+      "AllowDiscount": true,
+      "DefaultDiscountAccount": "",
+      "AllowDeposit": true,
+      "AutoApplyPayments": true,
+      "IPNSupportEnabled": false,
+      "CustomField": [
+        {
+          "CustomField": [
+            {"Name": "SalesFormsPrefs.UseSalesCustom1", "Type": "BooleanType", "BooleanValue": true},
+            {"Name": "SalesFormsPrefs.SalesCustomName1", "Type": "StringType", "StringValue": "PO Number"},
+            {"Name": "SalesFormsPrefs.UseSalesCustom2", "Type": "BooleanType", "BooleanValue": true},
+            {"Name": "SalesFormsPrefs.SalesCustomName2", "Type": "StringType", "StringValue": "Clarity ID"}
+          ]
+        }
+      ],
+      "UsingPriceLevels": false,
+      "UsingProgressInvoicing": false
+    },
+    "CurrencyPrefs": {"HomeCurrency": {"value": "USD"}, "MultiCurrencyEnabled": false},
+    "OtherPrefs": {"NameValue": [{"Name": "SalesFormsPrefs.DefaultCustomerMessage", "Value": "Thank you"}]},
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "1",
+    "SyncToken": "41",
+    "MetaData": {"CreateTime": "2014-09-11T14:48:43-07:00", "LastUpdatedTime": "2026-09-01T10:00:00-07:00"}
+  },
+  "time": "2026-09-15T08:12:44.102-07:00"
+}

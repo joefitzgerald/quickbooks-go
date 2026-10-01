@@ -5,24 +5,24 @@ package quickbooks
 
 // CompanyInfo describes a company account.
 type CompanyInfo struct {
-	CompanyName string
-	LegalName   string
-	// CompanyAddr
-	// CustomerCommunicationAddr
-	// LegalAddr
-	// PrimaryPhone
+	CompanyName               string
+	LegalName                 string
+	CompanyAddr               *PhysicalAddress `json:",omitempty"`
+	CustomerCommunicationAddr *PhysicalAddress `json:",omitempty"`
+	LegalAddr                 *PhysicalAddress `json:",omitempty"`
+	PrimaryPhone              *TelephoneNumber `json:",omitempty"`
 	// CompanyStartDate     Date
 	CompanyStartDate     string
 	FiscalYearStartMonth string
 	Country              string
-	// Email
-	// WebAddr
-	SupportedLanguages string
-	// NameValue
-	Domain    string
-	Id        string
-	SyncToken string
-	Metadata  MetaData `json:",omitempty"`
+	Email                *EmailAddress   `json:",omitempty"`
+	WebAddr              *WebSiteAddress `json:",omitempty"`
+	SupportedLanguages   string
+	NameValue            []NameValue `json:",omitempty"`
+	Domain               string
+	Id                   string
+	SyncToken            string
+	Metadata             MetaData `json:",omitempty"`
 }
 
 // FindCompanyInfo returns the QuickBooks CompanyInfo object. This is a good

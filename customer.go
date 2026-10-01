@@ -46,12 +46,12 @@ type Customer struct {
 	BillWithParent       bool             `json:",omitempty"`
 	ParentRef            ReferenceType    `json:",omitempty"`
 	Level                int              `json:",omitempty"`
-	// SalesTermRef
-	// PaymentMethodRef
-	Balance         json.Number `json:",omitempty"`
-	OpenBalanceDate Date        `json:",omitempty"`
-	BalanceWithJobs json.Number `json:",omitempty"`
-	// CurrencyRef
+	SalesTermRef         ReferenceType    `json:",omitempty"` // default payment terms (a Term id)
+	PaymentMethodRef     ReferenceType    `json:",omitempty"`
+	Balance              json.Number      `json:",omitempty"`
+	OpenBalanceDate      Date             `json:",omitempty"`
+	BalanceWithJobs      json.Number      `json:",omitempty"`
+	CurrencyRef          ReferenceType    `json:",omitempty"`
 }
 
 // GetAddress prioritizes the ship address, but falls back on bill address
@@ -197,6 +197,23 @@ func (c *Client) FindCustomerByName(name string) (*Customer, error) {
 	return &resp.QueryResponse.Customer[0], nil
 }
 
+// customFieldParams asks the API to include custom field values on customers
+// (QuickBooks Online Advanced). Writes carry the same parameter so the
+// CustomField array in the payload is applied.
+var customFieldParams = map[string]string{"include": "enhancedAllCustomFields"}
+
+// FindCustomersWithCustomFields gets every customer with their custom field
+// values included.
+func (c *Client) FindCustomersWithCustomFields() ([]Customer, error) {
+	return QueryAllWithParams[Customer](c, "SELECT * FROM Customer", 1000, customFieldParams)
+}
+
+// UpdateCustomerWithCustomFields is UpdateCustomer with custom field values
+// included in the request and the response, so a sparse update can set them.
+func (c *Client) UpdateCustomerWithCustomFields(customer *Customer) (*Customer, error) {
+	return c.updateCustomer(customer, customFieldParams)
+}
+
 // QueryCustomers accepts an SQL query and returns all customers found using it
 func (c *Client) QueryCustomers(query string) ([]Customer, error) {
 	var resp struct {
@@ -218,6 +235,10 @@ func (c *Client) QueryCustomers(query string) ([]Customer, error) {
 // returning the resulting Customer object. It's a sparse update, as not all QB
 // fields are present in our Customer object.
 func (c *Client) UpdateCustomer(customer *Customer) (*Customer, error) {
+	return c.updateCustomer(customer, nil)
+}
+
+func (c *Client) updateCustomer(customer *Customer, params map[string]string) (*Customer, error) {
 	if customer.Id == "" {
 		return nil, errors.New("missing customer id")
 	}
@@ -242,7 +263,7 @@ func (c *Client) UpdateCustomer(customer *Customer) (*Customer, error) {
 		Time     Date
 	}
 
-	if err = c.post("customer", payload, &customerData, nil); err != nil {
+	if err = c.post("customer", payload, &customerData, params); err != nil {
 		return nil, err
 	}
 

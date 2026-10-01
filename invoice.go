@@ -73,19 +73,24 @@ type AccountBasedExpenseLineDetail struct {
 	AccountRef ReferenceType
 	TaxAmount  json.Number `json:",omitempty"`
 	// TaxInclusiveAmt json.Number              `json:",omitempty"`
-	// ClassRef        ReferenceType `json:",omitempty"`
-	// TaxCodeRef      ReferenceType `json:",omitempty"`
+	ClassRef   ReferenceType `json:",omitempty"`
+	TaxCodeRef ReferenceType `json:",omitempty"`
 	// MarkupInfo MarkupInfo `json:",omitempty"`
-	// BillableStatus BillableStatusEnum       `json:",omitempty"`
-	// CustomerRef    ReferenceType `json:",omitempty"`
+	// BillableStatus marks an expense line as Billable to CustomerRef, Billed
+	// once it is on an invoice, or NotBillable.
+	BillableStatus string        `json:",omitempty"`
+	CustomerRef    ReferenceType `json:",omitempty"`
 }
 
 type Line struct {
-	Id                            string `json:",omitempty"`
-	LineNum                       int    `json:",omitempty"`
-	Description                   string `json:",omitempty"`
-	Amount                        json.Number
-	DetailType                    string
+	Id          string `json:",omitempty"`
+	LineNum     int    `json:",omitempty"`
+	Description string `json:",omitempty"`
+	Amount      json.Number
+	DetailType  string
+	// LinkedTxn links an invoice line to the transaction it bills, for instance
+	// a ReimburseCharge created from a billable Purchase line.
+	LinkedTxn                     []LinkedTxn                   `json:",omitempty"`
 	AccountBasedExpenseLineDetail AccountBasedExpenseLineDetail `json:",omitempty"`
 	SalesItemLineDetail           SalesItemLineDetail           `json:",omitempty"`
 	DiscountLineDetail            DiscountLineDetail            `json:",omitempty"`

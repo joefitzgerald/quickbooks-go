@@ -8,6 +8,7 @@ import "time"
 type CustomField struct {
 	DefinitionId string `json:"DefinitionId,omitempty"`
 	StringValue  string `json:"StringValue,omitempty"`
+	BooleanValue bool   `json:"BooleanValue,omitempty"`
 	Type         string `json:"Type,omitempty"`
 	Name         string `json:"Name,omitempty"`
 }

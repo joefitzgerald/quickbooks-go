@@ -63,11 +63,16 @@ func TestPreferences(t *testing.T) {
 	assert.Equal(t, "3", p.SalesFormsPrefs.DefaultTerms.Value)
 	require.Len(t, p.SalesFormsPrefs.CustomField, 1)
 	names := map[string]string{}
+	enabled := 0
 	for _, f := range p.SalesFormsPrefs.CustomField[0].CustomField {
 		if f.StringValue != "" {
 			names[f.Name] = f.StringValue
 		}
+		if f.BooleanValue {
+			enabled++
+		}
 	}
+	assert.Equal(t, 2, enabled)
 	assert.Equal(t, "PO Number", names["SalesFormsPrefs.SalesCustomName1"])
 	assert.Equal(t, "Clarity ID", names["SalesFormsPrefs.SalesCustomName2"])
 	assert.Equal(t, "USD", p.CurrencyPrefs.HomeCurrency.Value)

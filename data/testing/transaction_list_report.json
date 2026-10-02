@@ -1,0 +1,64 @@
+{
+  "Header": {
+    "Time": "2026-10-01T21:50:00-07:00",
+    "ReportName": "TransactionList",
+    "StartPeriod": "2000-01-01",
+    "EndPeriod": "2099-12-31",
+    "Currency": "USD",
+    "Option": [{ "Name": "NoReportData", "Value": "false" }]
+  },
+  "Columns": {
+    "Column": [
+      { "ColTitle": "Date", "ColType": "tx_date" },
+      { "ColTitle": "Transaction Type", "ColType": "txn_type" },
+      { "ColTitle": "Num", "ColType": "doc_num" },
+      { "ColTitle": "Posting", "ColType": "is_no_post" },
+      { "ColTitle": "Name", "ColType": "name" },
+      { "ColTitle": "Memo/Description", "ColType": "memo" },
+      { "ColTitle": "Account", "ColType": "account_name" },
+      { "ColTitle": "Split", "ColType": "other_account" },
+      { "ColTitle": "Amount", "ColType": "subt_nat_amount" }
+    ]
+  },
+  "Rows": {
+    "Row": [
+      {
+        "ColData": [
+          { "value": "2026-09-15" },
+          { "value": "Expense", "id": "201" },
+          { "value": "" },
+          { "value": "Yes" },
+          { "value": "Example Client", "id": "58" },
+          { "value": "" },
+          { "value": "Example Card", "id": "41" },
+          { "value": "Billable Expenses", "id": "76" },
+          { "value": "-12.34" }
+        ],
+        "type": "Data"
+      },
+      {
+        "Header": { "ColData": [{ "value": "Example Client" }] },
+        "Rows": {
+          "Row": [
+            {
+              "ColData": [
+                { "value": "2026-09-20" },
+                { "value": "Invoice", "id": "202" },
+                { "value": "1042" },
+                { "value": "Yes" },
+                { "value": "Example Client", "id": "58" },
+                { "value": "" },
+                { "value": "Accounts Receivable", "id": "84" },
+                { "value": "Services", "id": "1" },
+                { "value": "1000.00" }
+              ],
+              "type": "Data"
+            }
+          ]
+        },
+        "Summary": { "ColData": [{ "value": "Total for Example Client" }] },
+        "type": "Section"
+      }
+    ]
+  }
+}

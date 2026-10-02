@@ -112,3 +112,58 @@ func (r *ProfitAndLossReport) GetNetIncome() (float64, error) {
 
 	return 0, fmt.Errorf("net income not found in report")
 }
+
+// TransactionListReport is the TransactionList report: one row of type "Data" per
+// transaction, inside sections when the report is grouped.
+type TransactionListReport struct {
+	Header  ReportHeader  `json:"Header"`
+	Columns ReportColumns `json:"Columns"`
+	Rows    ReportRows    `json:"Rows"`
+}
+
+// GetTransactionListReport runs the TransactionList report over the dates given
+// (YYYY-MM-DD). filters are the report's own query parameters, such as
+// "customer" or "vendor" (ids, comma separated) and "transaction_type"; nil for
+// none.
+//
+// Filtered by customer, the report holds every transaction that names the
+// customer, on the transaction itself or on one of its lines (a billable
+// expense, a journal entry line), and not deleted ones. Over all dates, an empty
+// report therefore means the customer has never been used: the test of whether
+// an inactive customer can be given to something else, since QuickBooks never
+// removes a customer.
+func (c *Client) GetTransactionListReport(startDate, endDate string, filters map[string]string) (*TransactionListReport, error) {
+	queryParams := map[string]string{
+		"start_date": startDate,
+		"end_date":   endDate,
+	}
+	for name, value := range filters {
+		queryParams[name] = value
+	}
+
+	var report TransactionListReport
+
+	if err := c.get("reports/TransactionList", &report, queryParams); err != nil {
+		return nil, fmt.Errorf("failed to get transaction list report: %w", err)
+	}
+
+	return &report, nil
+}
+
+// TransactionCount counts the transactions in the report.
+func (r *TransactionListReport) TransactionCount() int {
+	return countDataRows(r.Rows.Row)
+}
+
+func countDataRows(rows []ReportRow) int {
+	n := 0
+	for _, row := range rows {
+		if row.Type == "Data" {
+			n++
+		}
+		if row.Rows != nil {
+			n += countDataRows(row.Rows.Row)
+		}
+	}
+	return n
+}

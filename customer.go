@@ -234,6 +234,11 @@ func (c *Client) QueryCustomers(query string) ([]Customer, error) {
 // UpdateCustomer updates the given Customer on the QuickBooks server,
 // returning the resulting Customer object. It's a sparse update, as not all QB
 // fields are present in our Customer object.
+//
+// A sparse update leaves out false, so it cannot make a customer inactive: use
+// DeactivateCustomer. It can make one active again (Active: true), in the same
+// request as a new name, parent and details. QuickBooks refuses every other
+// change to an inactive customer.
 func (c *Client) UpdateCustomer(customer *Customer) (*Customer, error) {
 	return c.updateCustomer(customer, nil)
 }
@@ -264,6 +269,57 @@ func (c *Client) updateCustomer(customer *Customer, params map[string]string) (*
 	}
 
 	if err = c.post("customer", payload, &customerData, params); err != nil {
+		return nil, err
+	}
+
+	return &customerData.Customer, nil
+}
+
+// customerActiveUpdate is the sparse update that only changes Active. Customer's
+// own Active field is left out of a request when false, so it cannot carry this.
+type customerActiveUpdate struct {
+	Id        string
+	SyncToken string
+	Active    bool
+	Sparse    bool `json:"sparse"`
+}
+
+// DeactivateCustomer makes a customer inactive, which is how QuickBooks deletes
+// one: a customer can never be removed. QuickBooks appends " (deleted)" to its
+// display name, leaves it out of queries that do not ask for inactive customers
+// (WHERE Active IN (true, false)), refuses any other change to it until it is
+// active again, and writes off its open balance. A customer with active
+// sub-customers cannot be made inactive.
+func (c *Client) DeactivateCustomer(id string) (*Customer, error) {
+	return c.setCustomerActive(id, false)
+}
+
+// ActivateCustomer makes an inactive customer active again. QuickBooks takes
+// " (deleted)" off its display name, adding "-1" when another customer has taken
+// the name meanwhile. A sub-customer cannot be made active while its parent is
+// inactive. To reuse an inactive customer under a new name, parent or details,
+// UpdateCustomer with Active set does it in one request.
+func (c *Client) ActivateCustomer(id string) (*Customer, error) {
+	return c.setCustomerActive(id, true)
+}
+
+func (c *Client) setCustomerActive(id string, active bool) (*Customer, error) {
+	if id == "" {
+		return nil, errors.New("missing customer id")
+	}
+
+	existingCustomer, err := c.FindCustomerById(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find existing customer: %v", err)
+	}
+
+	var customerData struct {
+		Customer Customer
+		Time     Date
+	}
+
+	payload := customerActiveUpdate{Id: id, SyncToken: existingCustomer.SyncToken, Active: active, Sparse: true}
+	if err = c.post("customer", payload, &customerData, nil); err != nil {
 		return nil, err
 	}
 

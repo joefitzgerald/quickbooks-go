@@ -237,8 +237,11 @@ func (c *Client) QueryCustomers(query string) ([]Customer, error) {
 //
 // A sparse update leaves out false, so it cannot make a customer inactive: use
 // DeactivateCustomer. It can make one active again (Active: true), in the same
-// request as a new name, parent and details. QuickBooks refuses every other
-// change to an inactive customer.
+// request as a new name, parent and details, with one catch: QuickBooks takes
+// the last " (...)" of a DisplayName sent with the reactivation for its own
+// " (deleted)" mark and drops it ("Bridge (Phase 2)" comes back as "Bridge"),
+// so such a name has to be sent again once the customer is active. QuickBooks
+// refuses every other change to an inactive customer.
 func (c *Client) UpdateCustomer(customer *Customer) (*Customer, error) {
 	return c.updateCustomer(customer, nil)
 }
@@ -298,7 +301,8 @@ func (c *Client) DeactivateCustomer(id string) (*Customer, error) {
 // " (deleted)" off its display name, adding "-1" when another customer has taken
 // the name meanwhile. A sub-customer cannot be made active while its parent is
 // inactive. To reuse an inactive customer under a new name, parent or details,
-// UpdateCustomer with Active set does it in one request.
+// UpdateCustomer with Active set does it in one request (see there for how
+// QuickBooks treats a new name ending in parentheses).
 func (c *Client) ActivateCustomer(id string) (*Customer, error) {
 	return c.setCustomerActive(id, true)
 }

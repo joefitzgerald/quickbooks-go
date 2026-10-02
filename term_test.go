@@ -95,3 +95,14 @@ func TestCustomerTermAndCustomFieldsRoundTrip(t *testing.T) {
 	assert.Equal(t, "3", back.SalesTermRef.Value)
 	assert.Equal(t, "PO-123", back.CustomField[0].StringValue)
 }
+
+func TestPreferencesSparseUpdatePayload(t *testing.T) {
+	on, label := true, "Clients"
+	patch := PreferencesPatch{AccountingInfoPrefs: &AccountingInfoPatch{ClassTrackingPerTxn: &on, ClassTrackingPerTxnLine: &on, CustomerTerminology: &label}}
+	b, err := json.Marshal(preferencesUpdate{Id: "1", SyncToken: "7", PreferencesPatch: patch, Sparse: true})
+	require.NoError(t, err)
+	// Only what the patch names is sent: nothing else can be changed by accident.
+	assert.JSONEq(t, `{"Id":"1","SyncToken":"7","sparse":true,"AccountingInfoPrefs":{"ClassTrackingPerTxn":true,"ClassTrackingPerTxnLine":true,"CustomerTerminology":"Clients"}}`, string(b))
+	assert.True(t, PreferencesPatch{}.Empty())
+	assert.False(t, patch.Empty())
+}

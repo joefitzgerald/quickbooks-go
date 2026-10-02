@@ -16,6 +16,18 @@ type Class struct {
 	MetaData           MetaData      `json:",omitempty"`
 }
 
+// CreateClass creates the given Class. The company must have class tracking on.
+func (c *Client) CreateClass(class *Class) (*Class, error) {
+	var resp struct {
+		Class Class
+		Time  Date
+	}
+	if err := c.post("class", class, &resp, nil); err != nil {
+		return nil, err
+	}
+	return &resp.Class, nil
+}
+
 // FindClasses gets the full list of Classes in the QuickBooks account. It
 // returns an empty slice (not an error) when the company has no classes or
 // class tracking is otherwise empty.

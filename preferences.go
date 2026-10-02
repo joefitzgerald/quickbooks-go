@@ -91,3 +91,57 @@ func (c *Client) FindPreferences() (*Preferences, error) {
 	}
 	return &prefs[0], nil
 }
+
+// PreferencesPatch names the settings a sparse update changes. Every field is a
+// pointer: nil leaves the setting as it is, so only what is named is sent.
+type PreferencesPatch struct {
+	AccountingInfoPrefs *AccountingInfoPatch `json:",omitempty"`
+	SalesFormsPrefs     *SalesFormsPatch     `json:",omitempty"`
+}
+
+// AccountingInfoPatch is the changeable part of AccountingInfoPrefs.
+type AccountingInfoPatch struct {
+	UseAccountNumbers       *bool   `json:",omitempty"`
+	ClassTrackingPerTxn     *bool   `json:",omitempty"`
+	ClassTrackingPerTxnLine *bool   `json:",omitempty"`
+	TrackDepartments        *bool   `json:",omitempty"`
+	CustomerTerminology     *string `json:",omitempty"`
+}
+
+// SalesFormsPatch is the changeable part of SalesFormsPrefs.
+type SalesFormsPatch struct {
+	CustomTxnNumbers *bool `json:",omitempty"`
+}
+
+// Empty reports whether the patch changes nothing.
+func (p PreferencesPatch) Empty() bool {
+	return p.AccountingInfoPrefs == nil && p.SalesFormsPrefs == nil
+}
+
+// preferencesUpdate is the sparse update payload.
+type preferencesUpdate struct {
+	Id        string
+	SyncToken string
+	PreferencesPatch
+	Sparse bool `json:"sparse"`
+}
+
+// UpdatePreferences sparsely updates the company preferences: only the settings
+// named in the patch are changed. The current SyncToken is read first: QuickBooks
+// refuses a stale one, which is also why its own settings screen can fail on a
+// sandbox company with "someone else was working on this at the same time".
+func (c *Client) UpdatePreferences(patch PreferencesPatch) (*Preferences, error) {
+	current, err := c.FindPreferences()
+	if err != nil {
+		return nil, err
+	}
+	var resp struct {
+		Preferences Preferences
+		Time        Date
+	}
+	payload := preferencesUpdate{Id: current.Id, SyncToken: current.SyncToken, PreferencesPatch: patch, Sparse: true}
+	if err := c.post("preferences", payload, &resp, nil); err != nil {
+		return nil, err
+	}
+	return &resp.Preferences, nil
+}

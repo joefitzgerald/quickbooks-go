@@ -1,0 +1,43 @@
+{
+  "ReimburseCharge": {
+    "CustomerRef": {
+      "value": "70",
+      "name": "Acme Corp:Phase 3"
+    },
+    "HasBeenInvoiced": false,
+    "Amount": 64.99,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "152",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2026-10-04T21:09:49-07:00",
+      "LastUpdatedTime": "2026-10-04T21:11:09-07:00"
+    },
+    "TxnDate": "2026-09-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Spike refund line",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Spike refund line",
+        "Amount": -64.99,
+        "DetailType": "ReimburseLineDetail",
+        "ReimburseLineDetail": {
+          "ItemAccountRef": {
+            "value": "125",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  "time": "2026-10-04T21:14:52.905-07:00"
+}

@@ -1,0 +1,55 @@
+{
+  "ReimburseCharge": {
+    "CustomerRef": {
+      "value": "70",
+      "name": "Acme Corp:Phase 3"
+    },
+    "HasBeenInvoiced": true,
+    "Amount": 671.92,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "149",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2026-10-04T21:09:48-07:00",
+      "LastUpdatedTime": "2026-10-04T21:10:56-07:00"
+    },
+    "TxnDate": "2026-09-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Spike hotel 3 nights",
+    "LinkedTxn": [
+      {
+        "TxnId": "154",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Spike hotel 3 nights",
+        "Amount": 671.92,
+        "LinkedTxn": [
+          {
+            "TxnId": "154",
+            "TxnType": "Invoice"
+          }
+        ],
+        "DetailType": "ReimburseLineDetail",
+        "ReimburseLineDetail": {
+          "ItemAccountRef": {
+            "value": "125",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  "time": "2026-10-04T21:14:52.502-07:00"
+}

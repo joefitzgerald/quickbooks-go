@@ -1,0 +1,113 @@
+{
+  "Purchase": {
+    "AccountRef": {
+      "value": "1150040079",
+      "name": "Company Card"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "200000001",
+      "name": "Spike Hotel",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 717.02,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "148",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2026-10-04T21:09:48-07:00",
+      "LastUpdatedTime": "2026-10-04T21:12:57-07:00"
+    },
+    "CustomField": [],
+    "TxnDate": "2026-09-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "149",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "150",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Spike hotel 3 nights",
+        "Amount": 671.92,
+        "LinkedTxn": [
+          {
+            "TxnId": "149",
+            "TxnType": "ReimburseCharge"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "70",
+            "name": "Phase 3"
+          },
+          "AccountRef": {
+            "value": "1150040008",
+            "name": "Billable Expenses"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Spike taxi",
+        "Amount": 45.10,
+        "LinkedTxn": [
+          {
+            "TxnId": "150",
+            "TxnType": "ReimburseCharge"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "70",
+            "name": "Phase 3"
+          },
+          "AccountRef": {
+            "value": "1150040008",
+            "name": "Billable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  "time": "2026-10-04T21:14:53.301-07:00"
+}

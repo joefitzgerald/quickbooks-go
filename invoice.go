@@ -61,6 +61,9 @@ type DeliveryInfo struct {
 type LinkedTxn struct {
 	TxnID   string `json:"TxnId"`
 	TxnType string `json:"TxnType"`
+	// TxnLineId names the line of the linked transaction. QuickBooks requires it
+	// when an invoice line links a ReimburseCharge (always "1": a charge has one line).
+	TxnLineId string `json:",omitempty"`
 }
 
 type TxnTaxDetail struct {
@@ -75,9 +78,9 @@ type AccountBasedExpenseLineDetail struct {
 	// TaxInclusiveAmt json.Number              `json:",omitempty"`
 	ClassRef   ReferenceType `json:",omitempty"`
 	TaxCodeRef ReferenceType `json:",omitempty"`
-	// MarkupInfo MarkupInfo `json:",omitempty"`
-	// BillableStatus marks an expense line as Billable to CustomerRef, Billed
-	// once it is on an invoice, or NotBillable.
+	MarkupInfo *MarkupInfo   `json:",omitempty"`
+	// BillableStatus marks an expense line as Billable to CustomerRef,
+	// HasBeenBilled once it is on an invoice, or NotBillable.
 	BillableStatus string        `json:",omitempty"`
 	CustomerRef    ReferenceType `json:",omitempty"`
 }
@@ -89,12 +92,42 @@ type Line struct {
 	Amount      json.Number
 	DetailType  string
 	// LinkedTxn links an invoice line to the transaction it bills, for instance
-	// a ReimburseCharge created from a billable Purchase line.
-	LinkedTxn                     []LinkedTxn                   `json:",omitempty"`
-	AccountBasedExpenseLineDetail AccountBasedExpenseLineDetail `json:",omitempty"`
-	SalesItemLineDetail           SalesItemLineDetail           `json:",omitempty"`
-	DiscountLineDetail            DiscountLineDetail            `json:",omitempty"`
-	TaxLineDetail                 TaxLineDetail                 `json:",omitempty"`
+	// a ReimburseCharge created from a billable Purchase line. QuickBooks bills
+	// the charge only when the invoice's own LinkedTxn lists it as well.
+	LinkedTxn []LinkedTxn `json:",omitempty"`
+	// The detail matching DetailType. They are pointers so that a line carries
+	// only its own detail: an empty detail object of another type is refused or
+	// misread by QuickBooks.
+	AccountBasedExpenseLineDetail *AccountBasedExpenseLineDetail `json:",omitempty"`
+	SalesItemLineDetail           *SalesItemLineDetail           `json:",omitempty"`
+	DiscountLineDetail            *DiscountLineDetail            `json:",omitempty"`
+	TaxLineDetail                 *TaxLineDetail                 `json:",omitempty"`
+	ReimburseLineDetail           *ReimburseLineDetail           `json:",omitempty"`
+}
+
+// Line detail types.
+const (
+	DetailTypeSalesItem           = "SalesItemLineDetail"
+	DetailTypeDiscount            = "DiscountLineDetail"
+	DetailTypeSubTotal            = "SubTotalLineDetail"
+	DetailTypeAccountBasedExpense = "AccountBasedExpenseLineDetail"
+	DetailTypeReimburse           = "ReimburseLineDetail"
+)
+
+// MarkupInfo is the markup on a billable expense: on an expense line the markup
+// to apply, on an invoice line made from a billable charge the amount billed.
+type MarkupInfo struct {
+	PercentBased           bool           `json:",omitempty"`
+	Value                  json.Number    `json:",omitempty"`
+	Percent                json.Number    `json:",omitempty"`
+	PriceLevelRef          *ReferenceType `json:",omitempty"`
+	MarkUpIncomeAccountRef *ReferenceType `json:",omitempty"`
+}
+
+// ReimburseLineDetail is the detail of a ReimburseCharge line.
+type ReimburseLineDetail struct {
+	ItemAccountRef ReferenceType  `json:",omitempty"`
+	TaxCodeRef     *ReferenceType `json:",omitempty"`
 }
 
 // TaxLineDetail ...
@@ -112,8 +145,9 @@ type SalesItemLineDetail struct {
 	ItemRef   ReferenceType `json:",omitempty"`
 	ClassRef  ReferenceType `json:",omitempty"`
 	UnitPrice json.Number   `json:",omitempty"`
-	// MarkupInfo
-	Qty             float32       `json:",omitempty"`
+	// MarkupInfo is set on a line QuickBooks made from a billable charge.
+	MarkupInfo      *MarkupInfo   `json:",omitempty"`
+	Qty             json.Number   `json:",omitempty"`
 	ItemAccountRef  ReferenceType `json:",omitempty"`
 	TaxCodeRef      ReferenceType `json:",omitempty"`
 	ServiceDate     Date          `json:",omitempty"`
@@ -124,8 +158,9 @@ type SalesItemLineDetail struct {
 
 // DiscountLineDetail ...
 type DiscountLineDetail struct {
-	PercentBased    bool
-	DiscountPercent float32 `json:",omitempty"`
+	PercentBased       bool
+	DiscountPercent    json.Number    `json:",omitempty"`
+	DiscountAccountRef *ReferenceType `json:",omitempty"`
 }
 
 // CreateInvoice creates the given Invoice on the QuickBooks server, returning
@@ -286,4 +321,91 @@ func (c *Client) VoidInvoice(invoice Invoice) error {
 	invoice.SyncToken = existingInvoice.SyncToken
 
 	return c.post("invoice", invoice, nil, map[string]string{"operation": "void"})
+}
+
+// InvoiceOptions are the request options of an invoice write or read.
+type InvoiceOptions struct {
+	// RequestID makes a create idempotent: QuickBooks answers a repeated create
+	// carrying the same requestid with the invoice the first one made.
+	RequestID string
+	// CustomFields asks for the enhanced custom fields (include=enhancedAllCustomFields).
+	// Without it QuickBooks neither writes nor returns them.
+	CustomFields bool
+}
+
+func (o InvoiceOptions) params() map[string]string {
+	p := map[string]string{}
+	if o.RequestID != "" {
+		p["requestid"] = o.RequestID
+	}
+	if o.CustomFields {
+		p["include"] = "enhancedAllCustomFields"
+	}
+	return p
+}
+
+// CreateInvoiceWithOptions creates an invoice with request options (idempotency key,
+// custom fields).
+func (c *Client) CreateInvoiceWithOptions(invoice *Invoice, opts InvoiceOptions) (*Invoice, error) {
+	var resp struct {
+		Invoice Invoice
+		Time    Date
+	}
+	if err := c.post("invoice", invoice, &resp, opts.params()); err != nil {
+		return nil, err
+	}
+	return &resp.Invoice, nil
+}
+
+// ReplaceInvoice is a full update: every field of the invoice is replaced by the
+// one given, and the lines and LinkedTxn by the lists given. It sends the
+// SyncToken given, so QuickBooks refuses it when the invoice has changed since
+// it was read.
+func (c *Client) ReplaceInvoice(invoice *Invoice, opts InvoiceOptions) (*Invoice, error) {
+	if invoice.Id == "" || invoice.SyncToken == "" {
+		return nil, errors.New("missing invoice id/sync token")
+	}
+	payload := struct {
+		*Invoice
+		Sparse bool `json:"sparse"`
+	}{Invoice: invoice, Sparse: false}
+	var resp struct {
+		Invoice Invoice
+		Time    Date
+	}
+	if err := c.post("invoice", payload, &resp, opts.params()); err != nil {
+		return nil, err
+	}
+	return &resp.Invoice, nil
+}
+
+// FindInvoiceByIdWithOptions reads an invoice, with its custom fields when asked.
+func (c *Client) FindInvoiceByIdWithOptions(id string, opts InvoiceOptions) (*Invoice, error) {
+	var resp struct {
+		Invoice Invoice
+		Time    Date
+	}
+	if err := c.get("invoice/"+id, &resp, opts.params()); err != nil {
+		return nil, err
+	}
+	return &resp.Invoice, nil
+}
+
+// VoidInvoiceWithSyncToken voids an invoice at the SyncToken given and returns
+// the voided invoice. QuickBooks zeroes its amounts and sets its PrivateNote to
+// "Voided". A voided invoice keeps its billable charges invoiced: unlink them
+// with ReplaceInvoice first.
+func (c *Client) VoidInvoiceWithSyncToken(id, syncToken string) (*Invoice, error) {
+	if id == "" || syncToken == "" {
+		return nil, errors.New("missing invoice id/sync token")
+	}
+	var resp struct {
+		Invoice Invoice
+		Time    Date
+	}
+	body := map[string]string{"Id": id, "SyncToken": syncToken}
+	if err := c.post("invoice", body, &resp, map[string]string{"operation": "void"}); err != nil {
+		return nil, err
+	}
+	return &resp.Invoice, nil
 }

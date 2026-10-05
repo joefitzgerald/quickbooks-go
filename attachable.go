@@ -12,6 +12,7 @@ import (
 	"net/textproto"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type ContentType string
@@ -120,6 +121,26 @@ func (c *Client) DownloadAttachable(id string) (string, error) {
 	}
 
 	return string(downloadUrl), err
+}
+
+// OpenAttachable downloads an attachable's file: it asks QuickBooks for a
+// temporary URL and fetches the file from it. The caller closes the body. The
+// temporary URL is fetched without the client's credentials, which it does not
+// need and must not receive.
+func (c *Client) OpenAttachable(id string) (io.ReadCloser, string, error) {
+	u, err := c.DownloadAttachable(id)
+	if err != nil {
+		return nil, "", err
+	}
+	resp, err := http.Get(strings.TrimSpace(u))
+	if err != nil {
+		return nil, "", err
+	}
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		return nil, "", fmt.Errorf("download attachable %s: %s", id, resp.Status)
+	}
+	return resp.Body, resp.Header.Get("Content-Type"), nil
 }
 
 // FindAttachables gets the full list of Attachables in the QuickBooks attachable.

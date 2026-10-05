@@ -32,9 +32,12 @@ type Purchase struct {
 
 // Billable statuses of an expense line.
 const (
-	BillableStatusBilled      = "Billed"
-	BillableStatusBillable    = "Billable"
-	BillableStatusNotBillable = "NotBillable"
+	BillableStatusHasBeenBilled = "HasBeenBilled"
+	BillableStatusBillable      = "Billable"
+	BillableStatusNotBillable   = "NotBillable"
+
+	// Deprecated: QuickBooks spells it HasBeenBilled; use BillableStatusHasBeenBilled.
+	BillableStatusBilled = BillableStatusHasBeenBilled
 )
 
 // CreatePurchase creates the given Purchase on the QuickBooks server.

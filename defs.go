@@ -3,7 +3,10 @@
 
 package quickbooks
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type CustomField struct {
 	DefinitionId string `json:"DefinitionId,omitempty"`
@@ -18,8 +21,22 @@ type Date struct {
 	time.Time `json:",omitempty"`
 }
 
+// MarshalJSON writes a zero date as null. QuickBooks reads a zero time
+// ("0001-01-01T00:00:00Z") as a date: an invoice line's ServiceDate became
+// 9999-12-31 in a sandbox test, where null leaves the date unset.
+func (d Date) MarshalJSON() ([]byte, error) {
+	if d.Time.IsZero() {
+		return []byte("null"), nil
+	}
+	return json.Marshal(d.Time)
+}
+
 // UnmarshalJSON removes time from parsed date
 func (d *Date) UnmarshalJSON(b []byte) (err error) {
+	if string(b) == "null" || string(b) == `""` {
+		d.Time = time.Time{}
+		return nil
+	}
 	if b[0] == '"' && b[len(b)-1] == '"' {
 		b = b[1 : len(b)-1]
 	}
@@ -27,6 +44,9 @@ func (d *Date) UnmarshalJSON(b []byte) (err error) {
 	d.Time, err = time.Parse(format, string(b))
 	if err != nil {
 		d.Time, err = time.Parse(secondFormat, string(b))
+	}
+	if err != nil {
+		d.Time, err = time.Parse(time.RFC3339, string(b))
 	}
 
 	return err

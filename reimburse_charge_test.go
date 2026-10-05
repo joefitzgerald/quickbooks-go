@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -166,4 +167,18 @@ func TestOpenAttachable(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "receipt-bytes", string(b))
 	assert.Equal(t, "image/png", contentType)
+}
+
+// A zero date is sent as null: QuickBooks reads a zero time as a date.
+func TestDateMarshalsZeroAsNull(t *testing.T) {
+	b, err := json.Marshal(struct {
+		A Date
+		B Date
+	}{B: Date{Time: time.Date(2026, 9, 30, 0, 0, 0, 0, time.UTC)}})
+	require.NoError(t, err)
+	assert.JSONEq(t, `{"A":null,"B":"2026-09-30T00:00:00Z"}`, string(b))
+	var back struct{ A, B Date }
+	require.NoError(t, json.Unmarshal(b, &back))
+	assert.True(t, back.A.IsZero())
+	assert.Equal(t, "2026-09-30", back.B.Format("2006-01-02"))
 }

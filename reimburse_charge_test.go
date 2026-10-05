@@ -182,3 +182,25 @@ func TestDateMarshalsZeroAsNull(t *testing.T) {
 	assert.True(t, back.A.IsZero())
 	assert.Equal(t, "2026-09-30", back.B.Format("2006-01-02"))
 }
+
+// A preferences update sends every modelled setting: what QuickBooks would otherwise
+// turn off is sent at its current value.
+func TestPreferencesPatchComplete(t *testing.T) {
+	on := true
+	cur := &Preferences{SalesFormsPrefs: SalesFormsPrefs{CustomTxnNumbers: true, AllowEstimates: true},
+		ProductAndServices:  ProductAndServicesPrefs{ForSales: true, QuantityOnHand: true},
+		VendorAndPurchases:  VendorAndPurchasesPrefs{TrackingByCustomer: true, BillableExpenseTracking: true},
+		AccountingInfoPrefs: AccountingInfoPrefs{UseAccountNumbers: true, CustomerTerminology: "Customers"}}
+	label := "Clients"
+	p := PreferencesPatch{AccountingInfoPrefs: &AccountingInfoPatch{ClassTrackingPerTxnLine: &on, CustomerTerminology: &label}}.Complete(cur)
+	assert.True(t, *p.AccountingInfoPrefs.ClassTrackingPerTxnLine)
+	assert.Equal(t, "Clients", *p.AccountingInfoPrefs.CustomerTerminology)
+	assert.True(t, *p.AccountingInfoPrefs.UseAccountNumbers)
+	assert.True(t, *p.SalesFormsPrefs.CustomTxnNumbers)
+	assert.True(t, *p.ProductAndServicesPrefs.ForSales)
+	assert.False(t, *p.ProductAndServicesPrefs.ForPurchase)
+	assert.True(t, *p.VendorAndPurchasesPrefs.BillableExpenseTracking)
+	raw, err := json.Marshal(p)
+	require.NoError(t, err)
+	assert.Contains(t, string(raw), `"ForPurchase":false`, "a false setting is sent, not left out")
+}

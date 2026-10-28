@@ -15,8 +15,13 @@ type Payment struct {
 	ProcessPayment      bool          `json:",omitempty"`
 	Line                []PaymentLine `json:",omitempty"`
 	CustomerRef         ReferenceType `json:",omitempty"`
-	Id                  string        `json:",omitempty"`
-	MetaData            MetaData      `json:",omitempty"`
+	// PaymentMethodRef names how the customer paid (Check, Cash, Credit Card, ...).
+	PaymentMethodRef ReferenceType `json:",omitempty"`
+	// PaymentRefNum is the reference number of the payment (a check number).
+	PaymentRefNum string   `json:",omitempty"`
+	PrivateNote   string   `json:",omitempty"`
+	Id            string   `json:",omitempty"`
+	MetaData      MetaData `json:",omitempty"`
 }
 
 type PaymentLine struct {

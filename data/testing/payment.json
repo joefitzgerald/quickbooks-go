@@ -1,0 +1,24 @@
+{
+  "Payment": {
+    "CustomerRef": { "value": "20", "name": "Amy's Bird Sanctuary" },
+    "DepositToAccountRef": { "value": "4" },
+    "PaymentMethodRef": { "value": "2", "name": "Check" },
+    "PaymentRefNum": "10264",
+    "TotalAmt": 10000.0,
+    "UnappliedAmt": 0,
+    "ProcessPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "152",
+    "SyncToken": "0",
+    "MetaData": { "CreateTime": "2026-10-20T09:00:00-07:00", "LastUpdatedTime": "2026-10-20T09:00:00-07:00" },
+    "TxnDate": "2026-10-20",
+    "CurrencyRef": { "value": "USD", "name": "United States Dollar" },
+    "PrivateNote": "Wire for 340 and 341",
+    "Line": [
+      { "Amount": 7500.0, "LinkedTxn": [ { "TxnId": "340", "TxnType": "Invoice" } ] },
+      { "Amount": 2500.0, "LinkedTxn": [ { "TxnId": "341", "TxnType": "Invoice" } ] }
+    ]
+  },
+  "time": "2026-10-20T09:00:01.000-07:00"
+}
